@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Navbar from './pages/header/Navbar'
 function App() {
   const [count, setCount] = useState(0)
   function myFunction(count) {
@@ -7,10 +8,7 @@ function App() {
 
   return (
     <>
-      <button onClick={() => myFunction(count)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Add
-      </button>
-      <p>Count: {count}</p>
+      <Navbar />
     </>
   )
 }
