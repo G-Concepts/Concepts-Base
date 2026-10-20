@@ -1,16 +1,17 @@
-import { useState } from 'react'
-import Navbar from './pages/header/Navbar'
+import { useState } from "react";
+import Navbar from "./pages/header/Navbar";
+import Footer from "./pages/footer/footer";
+import HeroSection from "./components/heroSection";
 function App() {
-  const [count, setCount] = useState(0)
-  function myFunction(count) {
-    setCount(count + 1);
-  }
-
   return (
     <>
       <Navbar />
+      <main className="min-h-screen">
+        <HeroSection />
+      </main>
+      <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
