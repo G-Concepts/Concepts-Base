@@ -49,7 +49,7 @@ const AnimatedHeadline = React.memo(function AnimatedHeadline({
 
 function HeroSection() {
   return (
-    <section className="bg-[#1F3A12] text-white pt-36 pb-10 overflow-hidden">
+    <section id="home" className="bg-[#1F3A12] text-white pt-36 pb-10 overflow-hidden">
       <style>{`
         @keyframes heroLetterIn {
           from { opacity: 0; transform: translateY(0.6em); }
