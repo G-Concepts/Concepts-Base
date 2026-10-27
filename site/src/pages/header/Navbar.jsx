@@ -4,18 +4,18 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", href: "#home" },
-    { name: "About", href: "#about" },
-    { name: "Industries", href: "#industries" },
-    { name: "Services", href: "#services" },
-    { name: "Contact", href: "#contact" },
+    { name: "Home", href: "/" },
+    { name: "About", href: "about" },
+    { name: "Industries", href: "industries" },
+    { name: "Services", href: "services" },
+    { name: "Contact", href: "contact" },
   ];
 
   return (
     <nav className="fixed top-0 start-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
       <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
         {/* Logo */}
-        <a href="#home" className="grid justify-items-center">
+        <a href="/" className="grid justify-items-center">
           <img
             src="/logo.webp"
             className="h-12 w-auto object-contain md:h-16"
