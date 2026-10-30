@@ -4,7 +4,9 @@ import Footer from "./pages/footer/footer";
 import Main from "./pages/Main";
 import NotFound from "./pages/NotFound";
 import About from "./components/About";
-
+import Industries from "./components/Industries";
+import Services from "./components/Services";
+import Contact from "./components/Contact";
 function App() {
   return (
     <BrowserRouter>
@@ -14,8 +16,9 @@ function App() {
           <Routes>
             <Route path="/" element={<Main />} />
             <Route path="/about" element={<About />} />
-            {/* Add these as you build the pages:
-            <Route path="/contact" element={<Contact />} /> */}
+            <Route path="/industries" element={<Industries />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/contact" element={<Contact/>}/>
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
