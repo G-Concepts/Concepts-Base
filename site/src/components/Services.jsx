@@ -124,7 +124,7 @@ function Services() {
       </section>
 
       {/* Related services */}
-      <section className="px-4 py-14 md:px-32">
+      <section id="related" className="px-4 py-14 md:px-32">
         <Reveal>
           <h2 className="mb-8 text-center text-2xl font-bold text-[#C9A227]">Related services</h2>
         </Reveal>
