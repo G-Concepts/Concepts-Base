@@ -1,14 +1,14 @@
-import { memo, useState } from "react";
+import { memo, useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Reveal from "./Reveal";
 
-// ---- Content (module scope: created once, easy to edit) -------------------
 const CONTACT = {
   name: "Geoffrey Emung'at",
   phone: "+254 722 800 705",
   phoneHref: "tel:+254722800705",
   whatsappHref: "https://wa.me/254722800705",
   email: "info@globalconcepts.co.ke",
-  office: "Nairobi, Kenya", // replace with the full address and working hours
+  office: "Nairobi, Kenya",
 };
 
 const SERVICES = [
@@ -69,15 +69,89 @@ function DetailRow({ icon, label, children, href, external }) {
   );
 }
 
-// ---- Page -----------------------------------------------------------------
+function FormFields({ form, update, onFocus }) {
+  return (
+    <>
+      <div className="grid gap-5 sm:grid-cols-2">
+        <Field label="Full name" id="name">
+          <input id="name" name="name" type="text" required autoComplete="name" placeholder="Jane Doe" value={form.name} onChange={update} onFocus={onFocus} className={inputClass} />
+        </Field>
+        <Field label="Company" id="company">
+          <input id="company" name="company" type="text" autoComplete="organization" placeholder="Your company" value={form.company} onChange={update} onFocus={onFocus} className={inputClass} />
+        </Field>
+        <Field label="Your role" id="role">
+          <input id="role" name="role" type="text" autoComplete="organization-title" placeholder="Operations manager" value={form.role} onChange={update} onFocus={onFocus} className={inputClass} />
+        </Field>
+        <Field label="Email" id="email">
+          <input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com" value={form.email} onChange={update} onFocus={onFocus} className={inputClass} />
+        </Field>
+      </div>
+
+      <div className="mt-5 grid gap-5">
+        <Field label="Service of interest" id="service">
+          <div className="relative">
+            <select id="service" name="service" value={form.service} onChange={update} onFocus={onFocus} className={`${inputClass} cursor-pointer appearance-none pr-10`}>
+              {SERVICES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            <svg className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#1F3A12]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+          </div>
+        </Field>
+        <Field label="How can we help you?" id="message">
+          <textarea id="message" name="message" rows={5} required placeholder="Tell us about your operation and what you want to improve" value={form.message} onChange={update} onFocus={onFocus} className={`${inputClass} resize-y`} />
+        </Field>
+      </div>
+    </>
+  );
+}
+
 function Contact() {
   const [form, setForm] = useState(INITIAL);
   const [sent, setSent] = useState(false);
+  const [open, setOpen] = useState(false); // modal mounted
+  const [shown, setShown] = useState(false); // modal animated in
+
+  const formRef = useRef(null);
+  const heightRef = useRef(null);
+  const pendingField = useRef(null);
+  const closeTimer = useRef(null);
 
   const update = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  // No backend yet: this opens the visitor's email app with the request filled in.
-  // Swap the body of this function for Formspree, EmailJS or your own API later.
+  const openModal = useCallback((field = "name") => {
+    clearTimeout(closeTimer.current);
+    heightRef.current = formRef.current?.offsetHeight ?? null;
+    pendingField.current = field;
+    setOpen(true);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setShown(false);
+    closeTimer.current = setTimeout(() => setOpen(false), 250);
+  }, []);
+
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
+
+  useEffect(() => {
+    if (!open) return;
+    const raf = requestAnimationFrame(() => setShown(true));
+    if (pendingField.current) {
+      document.getElementById(pendingField.current)?.focus({ preventScroll: true });
+      pendingField.current = null;
+    }
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => e.key === "Escape" && closeModal();
+    window.addEventListener("keydown", onKey);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [open, closeModal]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const body = [
@@ -97,7 +171,6 @@ function Contact() {
 
   return (
     <div className="pt-32 text-[#1F3A12]">
-      {/* Hero */}
       <section className="bg-gradient-to-br from-[#1F3A12] to-[#35582A] px-4 py-16 text-center md:px-32 md:text-left">
         <Reveal>
           <h1 className="text-3xl font-bold text-white md:text-4xl">Request a consultation</h1>
@@ -110,59 +183,31 @@ function Contact() {
         </Reveal>
       </section>
 
-      {/* Form + details */}
       <section id="textme" className="bg-gray-100 px-4 py-14 md:px-12 lg:px-32">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
           <Reveal from="left" className="lg:col-span-3">
-            <form
-              onSubmit={handleSubmit}
-              className="rounded-lg border-t-4 border-[#C9A227] bg-white p-6 shadow-md md:p-8"
-            >
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field label="Full name" id="name">
-                  <input id="name" name="name" type="text" required autoComplete="name" placeholder="Jane Doe" value={form.name} onChange={update} className={inputClass} />
-                </Field>
-                <Field label="Company" id="company">
-                  <input id="company" name="company" type="text" autoComplete="organization" placeholder="Your company" value={form.company} onChange={update} className={inputClass} />
-                </Field>
-                <Field label="Your role" id="role">
-                  <input id="role" name="role" type="text" autoComplete="organization-title" placeholder="Operations manager" value={form.role} onChange={update} className={inputClass} />
-                </Field>
-                <Field label="Email" id="email">
-                  <input id="email" name="email" type="email" required autoComplete="email" placeholder="you@company.com" value={form.email} onChange={update} className={inputClass} />
-                </Field>
-              </div>
-
-              <div className="mt-5 grid gap-5">
-                <Field label="Service of interest" id="service">
-                  <div className="relative">
-                    <select id="service" name="service" value={form.service} onChange={update} className={`${inputClass} cursor-pointer appearance-none pr-10`}>
-                      {SERVICES.map((s) => (
-                        <option key={s} value={s}>{s}</option>
-                      ))}
-                    </select>
-                    <svg className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-[#1F3A12]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M6 9l6 6 6-6" />
-                    </svg>
-                  </div>
-                </Field>
-                <Field label="How can we help you?" id="message">
-                  <textarea id="message" name="message" rows={5} required placeholder="Tell us about your operation and what you want to improve" value={form.message} onChange={update} className={`${inputClass} resize-y`} />
-                </Field>
-              </div>
-
-              <button
-                type="submit"
-                className="mt-6 w-full rounded bg-[#1F3A12] px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#C9A227] hover:shadow-lg sm:w-auto"
+            {open ? (
+              <div
+                aria-hidden="true"
+                className="rounded-lg border-t-4 border-[#C9A227] bg-white opacity-60 shadow-md"
+                style={{ height: heightRef.current || undefined, minHeight: "20rem" }}
+              />
+            ) : (
+              <form
+                ref={formRef}
+                onSubmit={(e) => e.preventDefault()}
+                className="rounded-lg border-t-4 border-[#C9A227] bg-white p-6 shadow-md md:p-8"
               >
-                Send request
-              </button>
-              {sent && (
-                <p role="status" className="mt-4 text-sm text-[#35582A]">
-                  Your email app should have opened with the request ready to send. If it didn't, email us at {CONTACT.email}.
-                </p>
-              )}
-            </form>
+                <FormFields form={form} update={update} onFocus={(e) => openModal(e.target.name)} />
+                <button
+                  type="button"
+                  onClick={() => openModal("name")}
+                  className="mt-6 w-full rounded bg-[#1F3A12] px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#C9A227] hover:shadow-lg sm:w-auto"
+                >
+                  Send request
+                </button>
+              </form>
+            )}
           </Reveal>
 
           <Reveal from="right" delay={150} className="flex flex-col gap-8 lg:col-span-2">
@@ -198,6 +243,73 @@ function Contact() {
           </Reveal>
         </div>
       </section>
+
+      {open &&
+        createPortal(
+          <div className="fixed inset-0 z-[100] flex items-end justify-center p-3 sm:items-center sm:p-6">
+            <div
+              aria-hidden="true"
+              onClick={closeModal}
+              className={`absolute inset-0 bg-[#1F3A12]/40 backdrop-blur-sm transition-opacity duration-300 ${
+                shown ? "opacity-100" : "opacity-0"
+              }`}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="consult-title"
+              className={`relative max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border-t-4 border-[#C9A227] bg-white p-6 text-[#1F3A12] shadow-2xl shadow-[#1F3A12]/30 transition-all duration-300 ease-out md:p-8 ${
+                shown ? "translate-y-0 scale-100 opacity-100" : "translate-y-6 scale-95 opacity-0"
+              }`}
+            >
+              <button
+                type="button"
+                onClick={closeModal}
+                aria-label="Close form"
+                className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full text-[#1F3A12]/70 transition-colors hover:bg-[#1F3A12]/10 hover:text-[#1F3A12] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A227]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" />
+                </svg>
+              </button>
+
+              <h2 id="consult-title" className="pr-10 text-2xl font-bold">
+                Request a consultation
+              </h2>
+              <span aria-hidden="true" className="mt-2 block h-1 w-12 rounded bg-[#C9A227]" />
+              <p className="mt-3 text-sm text-[#1F3A12]/70">
+                Share a few details and we will get back to you.
+              </p>
+
+              <form onSubmit={handleSubmit} className="mt-6">
+                <FormFields form={form} update={update} />
+
+                <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-end">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="rounded px-5 py-3 font-semibold text-[#1F3A12]/70 transition-colors hover:bg-[#1F3A12]/10 hover:text-[#1F3A12]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded bg-[#1F3A12] px-6 py-3 font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#C9A227] hover:shadow-lg"
+                  >
+                    Send request
+                  </button>
+                </div>
+
+                {sent && (
+                  <p role="status" className="mt-4 rounded-lg bg-[#1F3A12]/5 p-3 text-sm text-[#35582A]">
+                    Your email app should have opened with the request ready to send. If it didn't, email us at {CONTACT.email}.
+                  </p>
+                )}
+              </form>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
