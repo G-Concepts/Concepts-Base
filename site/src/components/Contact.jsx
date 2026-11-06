@@ -20,7 +20,7 @@ const SERVICES = [
   "SOP Development & Training",
   "Demand Planning",
 ];
-const message = "Not receiving responses now. Please reach out to us on WhatsApp or call us directly.";
+
 const MAP_SRC =
   "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255282.32390060008!2d36.68257628838811!3d-1.3032035597181237!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi!5e0!3m2!1sen!2ske!4v1793353510696!5m2!1sen!2ske";
 
@@ -78,26 +78,23 @@ function Contact() {
 
   // No backend yet: this opens the visitor's email app with the request filled in.
   // Swap the body of this function for Formspree, EmailJS or your own API later.
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   const body = [
-  //     `Name: ${form.name}`,
-  //     `Company: ${form.company}`,
-  //     `Role: ${form.role}`,
-  //     `Email: ${form.email}`,
-  //     `Service: ${form.service}`,
-  //     "",
-  //     form.message,
-  //   ].join("\n");
-  //   window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
-  //     `Consultation request: ${form.service}`
-  //   )}&body=${encodeURIComponent(body)}`;
-  //   setSent(true);
-  // };
- const handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    alert(message);
-  }
+    const body = [
+      `Name: ${form.name}`,
+      `Company: ${form.company}`,
+      `Role: ${form.role}`,
+      `Email: ${form.email}`,
+      `Service: ${form.service}`,
+      "",
+      form.message,
+    ].join("\n");
+    window.location.href = `mailto:${CONTACT.email}?subject=${encodeURIComponent(
+      `Consultation request: ${form.service}`
+    )}&body=${encodeURIComponent(body)}`;
+    setSent(true);
+  };
+
   return (
     <div className="pt-32 text-[#1F3A12]">
       {/* Hero */}
@@ -114,7 +111,7 @@ function Contact() {
       </section>
 
       {/* Form + details */}
-      <section className="bg-gray-100 px-4 py-14 md:px-12 lg:px-32">
+      <section id="textme" className="bg-gray-100 px-4 py-14 md:px-12 lg:px-32">
         <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-5">
           <Reveal from="left" className="lg:col-span-3">
             <form
