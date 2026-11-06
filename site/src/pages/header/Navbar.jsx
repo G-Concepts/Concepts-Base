@@ -1,88 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
+const navLinks = [
+  { name: "Home", href: "/" },
+  { name: "About", href: "/about" },
+  { name: "Industries", href: "/industries" },
+  { name: "Services", href: "/services" },
+  { name: "Contact", href: "/contact" },
+];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [path, setPath] = useState("/");
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "About", href: "about" },
-    { name: "Industries", href: "industries" },
-    { name: "Services", href: "services" },
-    { name: "Contact", href: "contact" },
-  ];
+  // Current path for the active-link highlight
+  useEffect(() => {
+    setPath(window.location.pathname.replace(/\/$/, "") || "/");
+  }, []);
+
+  // Navbar tightens up once the page starts scrolling
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Close the mobile menu with Escape, and lock page scroll while it's open
+  useEffect(() => {
+    const onKey = (e) => e.key === "Escape" && setIsOpen(false);
+    window.addEventListener("keydown", onKey);
+    document.body.style.overflow = isOpen ? "hidden" : "";
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
+  const isActive = (href) => path === href;
 
   return (
-    <nav className="fixed top-0 start-0 z-50 w-full border-b border-gray-200 bg-white shadow-sm">
-      <div className="mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4">
-        {/* Logo */}
-        <a href="/" className="grid justify-items-center">
-          <img
-            src="/logo.webp"
-            className="h-12 w-auto object-contain md:h-16"
-            alt="Global Concepts"
-          />
-          {/* Company Name */}
-          <span className="ml-2 text-sm font-bold text-gray-800">
-            Global Concepts
-          </span>
-        </a>
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 sm:px-6">
+      {/* Mask: solid page color behind the bar, fading out just below it,
+          so scrolling content never shows above or around the navbar.
+          Change the white values if your page background isn't white. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 -bottom-5 top-0"
+        style={{
+          background:
+            "linear-gradient(to bottom, #ffffff 0%, #ffffff 80%, rgba(255,255,255,0) 100%)",
+        }}
+      />
 
-        {/* Action buttons and mobile menu toggle */}
-        <div className="flex items-center gap-3 md:order-2">
-          <button
-            type="button"
-            onClick={() => setIsOpen(!isOpen)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[#1F3A12] md:hidden"
-            aria-controls="navbar-menu"
-            aria-expanded={isOpen}
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-          >
-            {isOpen ? (
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18 18 6M6 6l12 12"
-                />
-              </svg>
-            ) : (
-              <svg
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            )}
-          </button>
-        </div>
-
-        {/* Navigation links */}
+      <nav
+        aria-label="Main"
+        className={`relative mx-auto max-w-screen-xl rounded-2xl border bg-white transition-all duration-300 ${
+          scrolled
+            ? "border-[#1F3A12]/15 shadow-lg shadow-[#1F3A12]/10"
+            : "border-gray-200 shadow-sm"
+        }`}
+      >
         <div
-          id="navbar-menu"
-          className={`${
-            isOpen ? "flex" : "hidden"
-          } w-full flex-col md:order-1 md:flex md:w-auto md:flex-row md:items-center`}
+          className={`flex items-center justify-between px-4 transition-all duration-300 md:px-5 ${
+            scrolled ? "py-1.5" : "py-2.5"
+          }`}
         >
-          <ul className="mt-4 flex flex-col gap-1 rounded-lg border border-gray-100 bg-white p-3 font-medium md:mt-0 md:flex-row md:gap-8 md:border-0 md:p-0">
+          {/* Brand */}
+          <a
+            href="/"
+            className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3A12]"
+          >
+            <div className="flex flex-col items-center">
+              <img
+                src="/logo.webp"
+                alt="Global Concepts logo"
+                className={`w-auto rounded-lg object-contain mix-blend-multiply transition-all duration-300 ${
+                  scrolled ? "h-15" : "h-20"
+                }`}
+              />
+            </div>
+          </a>
+
+          {/* Desktop links */}
+          <ul className="hidden items-center gap-1 md:flex">
             {navLinks.map((link) => (
               <li key={link.name}>
                 <a
                   href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block rounded-md px-3 py-3 text-gray-700 transition-colors duration-300 hover:bg-gray-100 hover:text-[#1F3A12] md:px-0 md:py-2 md:hover:bg-transparent"
+                  aria-current={isActive(link.href) ? "page" : undefined}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3A12] ${
+                    isActive(link.href)
+                      ? "bg-[#1F3A12]/10 text-[#1F3A12]"
+                      : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
                 >
                   {link.name}
                 </a>
@@ -90,16 +101,89 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Consultation button */}
-          <a
-            href="/contact#textme"
-            onClick={() => setIsOpen(false)}
-            className="mt-3 inline-flex items-center justify-center rounded-md bg-[#1F3A12] px-4 py-3 text-sm font-medium text-white transition-colors duration-300 hover:bg-[#304F20] md:ml-8 md:mt-0"
-          >
-            Request a Consultation
-          </a>
+          {/* Actions */}
+          <div className="flex items-center gap-2">
+            <a
+              href="/contact#textme"
+              className="hidden rounded-full bg-[#1F3A12] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition duration-200 hover:bg-[#304F20] hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3A12] focus-visible:ring-offset-2 md:inline-flex"
+            >
+              Request a consultation
+            </a>
+
+            <button
+              type="button"
+              onClick={() => setIsOpen((v) => !v)}
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-gray-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1F3A12] md:hidden"
+              aria-controls="mobile-menu"
+              aria-expanded={isOpen}
+              aria-label={isOpen ? "Close menu" : "Open menu"}
+            >
+              {/* Hamburger that morphs into an X */}
+              <span className="sr-only">
+                {isOpen ? "Close menu" : "Open menu"}
+              </span>
+              <span
+                aria-hidden="true"
+                className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${
+                  isOpen ? "rotate-45" : "-translate-y-1.5"
+                }`}
+              />
+              <span
+                aria-hidden="true"
+                className={`absolute h-0.5 w-5 rounded bg-current transition-opacity duration-200 ${
+                  isOpen ? "opacity-0" : "opacity-100"
+                }`}
+              />
+              <span
+                aria-hidden="true"
+                className={`absolute h-0.5 w-5 rounded bg-current transition-transform duration-300 ${
+                  isOpen ? "-rotate-45" : "translate-y-1.5"
+                }`}
+              />
+            </button>
+          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* Mobile menu: animates height smoothly */}
+        <div
+          id="mobile-menu"
+          className={`grid transition-[grid-template-rows] duration-300 ease-out md:hidden ${
+            isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+          }`}
+        >
+          <div className="overflow-hidden">
+            <ul className="flex flex-col gap-1 border-t border-gray-100 px-3 pb-3 pt-3">
+              {navLinks.map((link) => (
+                <li key={link.name}>
+                  <a
+                    href={link.href}
+                    onClick={() => setIsOpen(false)}
+                    tabIndex={isOpen ? 0 : -1}
+                    aria-current={isActive(link.href) ? "page" : undefined}
+                    className={`block rounded-xl px-4 py-3 text-base font-medium transition-colors ${
+                      isActive(link.href)
+                        ? "bg-[#1F3A12]/10 text-[#1F3A12]"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    {link.name}
+                  </a>
+                </li>
+              ))}
+              <li className="pt-2">
+                <a
+                  href="/contact#textme"
+                  onClick={() => setIsOpen(false)}
+                  tabIndex={isOpen ? 0 : -1}
+                  className="flex items-center justify-center rounded-xl bg-[#1F3A12] px-4 py-3.5 text-base font-medium text-white transition-colors hover:bg-[#304F20]"
+                >
+                  Request a consultation
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
   );
 }
