@@ -99,13 +99,13 @@ function HeroSection() {
               style={{ animationDelay: "1.9s" }}
             >
               <a
-                href="#services"
+                href="/services#related"
                 className="text-center bg-[#C9A227] text-[#1F3A12] font-semibold px-6 py-3 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Explore Services
               </a>
               <a
-                href="#contact"
+                href="/contact#textme"
                 className="text-center border-2 border-white text-white font-semibold px-6 py-3 rounded-lg hover:bg-white hover:text-[#1F3A12] transition-colors"
               >
                 Book a Consultation
