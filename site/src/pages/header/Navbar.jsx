@@ -92,7 +92,7 @@ export default function Navbar() {
 
           {/* Consultation button */}
           <a
-            href="#consultation"
+            href="/contact#textme"
             onClick={() => setIsOpen(false)}
             className="mt-3 inline-flex items-center justify-center rounded-md bg-[#1F3A12] px-4 py-3 text-sm font-medium text-white transition-colors duration-300 hover:bg-[#304F20] md:ml-8 md:mt-0"
           >
