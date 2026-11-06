@@ -7,11 +7,13 @@ import About from "./components/About";
 import Industries from "./components/Industries";
 import Services from "./components/Services";
 import Contact from "./components/Contact";
+import WhatsAppButton from "./pages/Whatsapp";
 function App() {
   return (
     <BrowserRouter>
       <div className="flex min-h-screen flex-col">
         <Navbar />
+        <WhatsAppButton />
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Main />} />
