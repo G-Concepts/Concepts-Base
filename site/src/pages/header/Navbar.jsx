@@ -49,7 +49,7 @@ export default function Navbar() {
         className="pointer-events-none absolute inset-x-0 -bottom-5 top-0"
         style={{
           background:
-            "linear-gradient(to bottom, #ffffff 0%, #ffffff 80%, rgba(255,255,255,0) 100%)",
+            "linear-gradient(to bottom, #ffffff 0%, #1F3A12 80%, rgba(255,255,255,0) 100%)",
         }}
       />
 
